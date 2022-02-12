@@ -1,6 +1,8 @@
 // IMPORTS
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js";
 import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.118/examples/jsm/controls/OrbitControls.js";
+import { OBJLoader } from "https://cdn.jsdelivr.net/npm/three@0.118/examples/jsm/loaders/OBJLoader.js";
+import { MTLLoader } from "https://cdn.jsdelivr.net/npm/three@0.118/examples/jsm/loaders/MTLLoader.js";
 
 //SCENE
 const scene = new THREE.Scene();
@@ -57,10 +59,33 @@ scene.add(light1);
 scene.add(light2);
 
 //OBJECT
-const geometry = new THREE.BoxGeometry(20, 5, 20);
-const material = new THREE.MeshLambertMaterial({ color: 0xfafafa });
-const square = new THREE.Mesh(geometry, material);
-scene.add(square);
+const mtlLoader = new MTLLoader();
+mtlLoader.load(
+  "Scene/MyOffice.mtl",
+  (materials) => {
+    materials.preload();
+    const objLoader = new OBJLoader();
+    objLoader.setMaterials(materials);
+    objLoader.load(
+      "Scene/MyOffice.obj",
+      (object) => {
+        scene.add(object);
+      },
+      (xhr) => {
+        console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+  },
+  (xhr) => {
+    console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+  },
+  (error) => {
+    console.log(error);
+  }
+);
 
 function render() {
   controls.update();
